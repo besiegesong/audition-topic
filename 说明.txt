@@ -1,0 +1,5 @@
+我选择的是面试c:
+第一题对应test1.py已完成
+第二题对应test2.py已完成
+第三题对应personalHomepage文件夹采用django+百度地图api+mysql
+问题对于已经去过的省份，不可以再做计划这一个未完成，
