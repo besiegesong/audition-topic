@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>homepage</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="/templates/js/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<div style="width: 100%;height: 100%">
+    <div style="background-color: blue;height: 10%;width: 80%;margin-left: 10%;margin-top: 100px">
+        <span id="home" style="width: 33%;text-align: center" onclick="htmlonclick(this.id)">网站首页</span>
+        <span id="personal" style="margin-left: 33%;text-align: center" onclick="htmlonclick(this.id)">个人简历</span>
+        <span id="travel" style="margin-left: 33%;text-align: center" onclick="htmlonclick(this.id)">旅游日记</span>
+    </div>
+    <div id="content" style="height: auto;width: 80%;margin-left: 10%">
+        你好欢迎来到我的主页home
+    </div>
+</div>
+</body>
+</html>
+<script type="application/javascript">
+    $(function () {
+        $("#upload").click(function () {
+            loadResume()
+        })
+    })
+
+    function htmlonclick(id) {
+        if (id == "home") {
+            //alert("home")
+            $("#content").html("你好欢迎来到我的主页home")
+        } else if (id == "personal") {
+            //alert("personal")
+            var inertHtml = "<div style='margin-left: 37%'><form method='post' enctype='multipart/form-data'><input id='importFile' type='file' value='仅支持.doc,.docx'/>*仅支持.doc,.docx*<input type='submit' onclick='loadResume()' value='提交'/> </form></div> <div id='see'>暂无可预览文件</div>"
+            $("#content").html(inertHtml)
+            loadResume()
+        } else {
+            //alert("travel")
+            //$("#content").html("你好欢迎来到我的主页travel")
+            var str = "<iframe style='height:1080px;width:100%;padding:0;margin:0;overflow: auto;'frameborder='no' border='0'  id='subIframe' src='/templates/html/travel.html'> </iframe>"
+            $("#content").html(str)
+        }
+    }
+    //加载简历
+    function loadResume() {
+        url = "/LoadResume/"
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function (data) {
+                //console.log(data)
+                $("#content").html(data)
+                //$("#see").html(data)
+            }
+        });
+    }
+
+</script>

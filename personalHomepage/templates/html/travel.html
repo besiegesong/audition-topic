@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <title>travel</title>
+    <script src="/templates/js/jquery-3.3.1.min.js"></script>
+    <style type="text/css">
+        html {
+            height: 100%
+        }
+
+        body {
+            height: 100%;
+            margin: 0px;
+            padding: 0px
+        }
+
+        #container {
+            height: 100%
+        }
+    </style>
+    <script type="text/javascript"
+            src="http://api.map.baidu.com/api?v=2.0&ak=sBxGczURAGXQGVKS1YHlhgtKz7wELj1t"></script>
+</head>
+<body>
+<div id="container"></div>
+</body>
+</html>
+<script type="application/javascript">
+    var map = new BMap.Map("container");
+    var point = new BMap.Point(116.404, 39.915);
+    var current_point_lng = 0;
+    var current_point_lat = 0
+    map.disableDoubleClickZoom()
+    map.centerAndZoom(point, 6);
+    //单击获取点击的经纬度
+    map.addEventListener("click", function (e) {
+        console.log(e)
+        map.centerAndZoom(point, 6);
+    });
+    getTravel()//获取所有已标记的点
+    var menu = new BMap.ContextMenu();
+    var txtMenuItem =
+        {
+            text: '添加标记',
+            callback: function () {
+                var theResponse = window.prompt("请输入标记", "");
+                if (theResponse) {
+                    var marker = new BMap.Marker(new BMap.Point(current_point_lng, current_point_lat));  // 创建标注
+                    map.addOverlay(marker);               // 将标注添加到地图中
+                    addTravel(current_point_lng, current_point_lat, theResponse)
+                    addClickHandler(theResponse, marker);
+                }
+            }
+        }
+    menu.addItem(new BMap.MenuItem(txtMenuItem.text, txtMenuItem.callback));
+    map.addContextMenu(menu);
+    map.addEventListener("rightclick", function (e) {
+            current_point_lng = e.point.lng;
+            current_point_lat = e.point.lat;
+        }
+    );
+
+
+    function addClickHandler(content, marker) {
+        marker.addEventListener("mouseover", function (e) {
+                openInfo(content, e)
+            }
+        );
+    }
+
+    function openInfo(content, e) {
+        var p = e.target;
+        var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+        var opts = {
+            width: 250,     // 信息窗口宽度
+            height: 80,     // 信息窗口高度
+            title: "旅游标记", // 信息窗口标题
+            enableMessage: true//设置允许信息窗发送短息
+        };
+        var infoWindow = new BMap.InfoWindow(content, opts);  // 创建信息窗口对象
+        map.openInfoWindow(infoWindow, point); //开启信息窗口
+    }
+
+    function addTravel(x, y, text) {
+        url = "/home/addTravel/"
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {"x": parseFloat(x), "y": parseFloat(y), "text": text},
+            success: function (data) {
+            }
+        });
+    }
+
+    function getTravel() {
+        url = "/home/getTravel/"
+        $.ajax({
+            url: url,
+            type: "GET",
+            contentType: "application/json",
+            success: function (data) {
+                var data_info = strtojson(data);
+                for (var i = 0; i < data_info.length; i++) {
+                    var markerq = new BMap.Marker(new BMap.Point(data_info[i][0], data_info[i][1]));  // 创建标注
+                    var content = data_info[i][2];
+                    map.addOverlay(markerq);               // 将标注添加到地图中
+                    addClickHandler(content, markerq);
+                }
+            }
+        });
+    }
+    function strtojson(jsonStr) {
+        var json = null;
+		if(jsonStr!=null&&jsonStr.length>0){
+			json = eval("(" + jsonStr + ")");
+		}
+		return json;
+    }
+</script>
